@@ -66,7 +66,7 @@ def run_container_adv(container_name, dns_info, image_name):
     
     args = ["docker", "run", "-d", "--volumes-from", "keyhost", "--name",
     container_name, "--dns-search=localdomain", "-h",
-    container_name+'.localdomain', dns_info, image_name]
+    container_name+'.localdomain', dns_info, "--dns=8.8.8.8", image_name]
     return shell_exec(args)
 
 
