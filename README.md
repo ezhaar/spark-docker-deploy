@@ -22,5 +22,7 @@ sudo ./spark-deploy launch --slaves 2 --cluster_name c1
 - check if a keyhost container and dns-server are already running
 - ability to add more nodes
 - ability to delete a cluster
+- replace python subprocess calls with docker-api calls
+- ability to mount a volume on master
 - verbosity
 - dry run

@@ -135,9 +135,6 @@ def main():
     copy_args = ["mv", "/tmp/slaves", spark_file_path]
     status = shell_exec(copy_args)
     
-    copy_args = ["cp", "start-bdas.sh", master_rootfs + "/rootfs/root/"]
-    status = shell_exec(copy_args)
-    
     restart_dnsmasq()
 
 
