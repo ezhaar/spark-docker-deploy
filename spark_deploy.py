@@ -48,32 +48,32 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def shell_exec(args):
+    return Popen(args, stdout=PIPE).communicate()[0].decode("utf-8")
+
+
 def restart_dnsmasq():
     args = ["docker", "exec", "-d", "dns_server", "/root/dnsmasq_sighup.sh"]
-    status = Popen(args, stdout=PIPE).communicate()[0].decode("utf-8")
-    return status
+    return shell_exec(args)
 
 
 def run_container(container_name, image_name):
     args = ["docker", "run", "-d", "--name", container_name, image_name]
-    cont_id = Popen(args, stdout=PIPE).communicate()[0].decode("utf-8")
-    return cont_id
-
+    return shell_exec(args)
+    
 
 def run_container_adv(container_name, dns_info, image_name):
     
     args = ["docker", "run", "-d", "--volumes-from", "keyhost", "--name",
     container_name, "--dns-search=localdomain", "-h",
     container_name+'.localdomain', dns_info, image_name]
-    
-    cont_id = Popen(args, stdout=PIPE).communicate()[0]
-    return cont_id.decode("utf-8")
+    return shell_exec(args)
 
 
 def get_container_ip(container_name):
     args = ["docker", "inspect", "-f", "'{{ .NetworkSettings.IPAddress }}'",
             container_name] 
-    cont_ip = Popen(args, stdout=PIPE).communicate()[0].decode("utf-8")
+    cont_ip = shell_exec(args)
     return cont_ip.replace("'", "")
 
 
@@ -101,6 +101,7 @@ def main():
     dns_server_id = run_container("dns_server", dns_img).rstrip()
     dns_server_ip = get_container_ip("dns_server")
     dns_info = "--dns="+str(dns_server_ip)
+    dns_rootfs = "/var/lib/docker/devicemapper/mnt/" + dns_server_id
     
     # boot keyhost
     keyhost_id = run_container("keyhost", keyhost_img)
@@ -109,6 +110,7 @@ def main():
     master_id = run_container_adv(master_name, dns_info,
     spark_img).rstrip()
     master_ip = get_container_ip(master_name).rstrip()
+    master_rootfs = "/var/lib/docker/devicemapper/mnt/" + master_id
     
     #boot slaves
     slaves_dict = {}
@@ -119,18 +121,23 @@ def main():
 
     # create hosts and slaves files
     create_files(num_slaves, master_name, master_ip, slaves_dict)
-    hosts_file_path = "/var/lib/docker/devicemapper/mnt/" + dns_server_id + \
-    "/rootfs/etc/"
-    spark_file_path = "/var/lib/docker/devicemapper/mnt/" + master_id + \
-    "/rootfs/usr/local/spark/conf/"
-    hadoop_file_path = "/var/lib/docker/devicemapper/mnt/" + master_id + \
-    "/rootfs/usr/local/hadoop-2.4.0/etc/hadoop/"
+    
+    hosts_file_path = dns_rootfs + "/rootfs/etc/"
+    spark_file_path = master_rootfs + "/rootfs/usr/local/spark/conf/"
+    hadoop_file_path = master_rootfs + "/rootfs/usr/local/hadoop-2.4.0/etc/hadoop/"
+    
     copy_args = ["mv", "/tmp/hosts.localdomain", hosts_file_path]
-    status = Popen(copy_args, stdout=PIPE).communicate()[0]
+    status = shell_exec(copy_args)
+    
     copy_args = ["cp", "/tmp/slaves", hadoop_file_path]
-    status = Popen(copy_args, stdout=PIPE).communicate()[0]
+    status = shell_exec(copy_args)
+    
     copy_args = ["mv", "/tmp/slaves", spark_file_path]
-    status = Popen(copy_args, stdout=PIPE).communicate()[0]
+    status = shell_exec(copy_args)
+    
+    copy_args = ["cp", "start-bdas.sh", master_rootfs + "/rootfs/root/"]
+    status = shell_exec(copy_args)
+    
     restart_dnsmasq()
 
 

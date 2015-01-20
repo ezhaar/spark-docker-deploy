@@ -17,4 +17,4 @@
 # limitations under the License.
 
 cd "`dirname $0`"
-python ./spark_deploy.py $@
+python2.7 ./spark_deploy.py $@
