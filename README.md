@@ -15,6 +15,8 @@ sudo ./spark-deploy launch --slaves 2 --cluster_name c1
 ```
 
 **ToDo**:
+- Exception handling
+- open ports for web interfaces
 - check if a keyhost container and dns-server are already running
 - ability to add more nodes
 - ability to delete a cluster
