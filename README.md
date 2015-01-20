@@ -10,7 +10,7 @@ may not be available yet.
 spark-deploy -h
 
 # Create a 2 slaves spark cluster
-spark-deploy --slaves 2 --cluster_name c1
+sudo ./spark-deploy launch --slaves 2 --cluster_name c1
 
 ```
 
