@@ -102,7 +102,7 @@ def main():
     num_slaves = args.num_slaves
     dns_img = "ezhaar/docker-dnsmasq"
     keyhost_img = "ezhaar/docker-ssh-keys"
-    spark_img = "ezhaar/docker-spark-new"
+    spark_img = "ezhaar/docker-spark"
     master_name = cluster_name + "-master"
     
     # boot dns-server
