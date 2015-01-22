@@ -62,10 +62,18 @@ def run_container(container_name, image_name):
     return shell_exec(args)
     
 
-def run_container_adv(container_name, dns_info, image_name):
+def run_container_master(container_name, dns_info, image_name):
     
     args = ["docker", "run", "-d", "--volumes-from", "keyhost", "--name",
     container_name, "--dns-search=localdomain", "-h",
+    container_name+'.localdomain', dns_info, "--dns=8.8.8.8", image_name]
+    return shell_exec(args)
+
+def run_container_slave(container_name, master_name, dns_info, image_name):
+    
+    args = ["docker", "run", "-d", "--volumes-from", "keyhost",
+    "--volumes-from", master_name, 
+    "--name", container_name, "--dns-search=localdomain", "-h",
     container_name+'.localdomain', dns_info, "--dns=8.8.8.8", image_name]
     return shell_exec(args)
 
@@ -94,7 +102,7 @@ def main():
     num_slaves = args.num_slaves
     dns_img = "ezhaar/docker-dnsmasq"
     keyhost_img = "ezhaar/docker-ssh-keys"
-    spark_img = "ezhaar/docker-spark"
+    spark_img = "ezhaar/docker-spark-new"
     master_name = cluster_name + "-master"
     
     # boot dns-server
@@ -107,7 +115,7 @@ def main():
     keyhost_id = run_container("keyhost", keyhost_img)
     
     #boot master
-    master_id = run_container_adv(master_name, dns_info,
+    master_id = run_container_master(master_name, dns_info,
     spark_img).rstrip()
     master_ip = get_container_ip(master_name).rstrip()
     master_rootfs = "/var/lib/docker/devicemapper/mnt/" + master_id
@@ -116,7 +124,7 @@ def main():
     slaves_dict = {}
     for i in range(1, num_slaves + 1):
         sl_name = cluster_name + "-slave" + str(i)
-        sl_id = run_container_adv(sl_name, dns_info, spark_img)
+        sl_id = run_container_slave(sl_name, master_name, dns_info, spark_img)
         slaves_dict[sl_name] = get_container_ip(sl_name).rstrip()
 
     # create hosts and slaves files
