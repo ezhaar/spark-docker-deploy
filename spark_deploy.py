@@ -131,10 +131,6 @@ def main():
     copy_args = ["mv", "/tmp/hosts.localdomain", hosts_file_path]
     status = shell_exec(copy_args)
 
-    # copy_args = ["cp", "/tmp/slaves", hadoop_file_path]
-    copy_args = ["cp", "start-bdas.sh", root_file_path]
-    status = shell_exec(copy_args)
-
     copy_args = ["mv", "/tmp/slaves", root_file_path]
     status = shell_exec(copy_args)
 
