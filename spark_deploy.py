@@ -62,13 +62,12 @@ def run_container(container_name, image_name):
 def run_container_master(container_name, dns_info, image_name):
     args = ["docker", "run", "-d", "--volumes-from", "keyhost", "--name",
             container_name, "--dns-search=localdomain", "-h",
-            container_name + '.localdomain', dns_info, "--dns=8.8.8.8", image_name]
+            'master.localdomain', dns_info, "--dns=8.8.8.8", image_name]
     return shell_exec(args)
 
 
 def run_container_slave(container_name, master_name, dns_info, image_name):
     args = ["docker", "run", "-d", "--volumes-from", "keyhost",
-            "--volumes-from", master_name,
             "--name", container_name, "--dns-search=localdomain", "-h",
             container_name + '.localdomain', dns_info, "--dns=8.8.8.8", image_name]
     return shell_exec(args)
@@ -84,7 +83,7 @@ def get_container_ip(container_name):
 def create_files(num_slaves, master_name, master_ip, slaves_dict):
     hosts_file = open("/tmp/hosts.localdomain", "w")
     slaves_file = open("/tmp/slaves", "w")
-    hosts_file.write(master_ip + "\t" + master_name + ".localdomain\t" +
+    hosts_file.write(master_ip + "\t master.localdomain\t" +
                      master_name + "\n")
     for key, val in slaves_dict.items():
         hosts_file.write(val + "\t" + key + ".localdomain\t" + key + "\n")
