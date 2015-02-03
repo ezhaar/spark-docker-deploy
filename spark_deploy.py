@@ -19,6 +19,7 @@
 
 
 from __future__ import with_statement
+import sys
 import argparse
 from subprocess import Popen, PIPE
 
@@ -64,7 +65,6 @@ def run_container(container_name, image_name):
 
 
 def run_container_master(container_name, dns_info, image_name):
-    image_name = "ezhaar/spark-ipynb"
     args = ["docker", "run", "-d", "--volumes-from", "keyhost", "--name",
             container_name, "--dns-search=localdomain", "-h",
             'master.localdomain', dns_info, "--dns=8.8.8.8", image_name]
@@ -132,7 +132,6 @@ def main():
 
     hosts_file_path = dns_rootfs + "/rootfs/etc/"
     root_file_path = master_rootfs + "/rootfs/root/"
-    # hadoop_file_path = master_rootfs + "/rootfs/usr/local/hadoop-2.4.0/etc/hadoop/"
 
     copy_args = ["mv", "/tmp/hosts.localdomain", hosts_file_path]
     status = shell_exec(copy_args)
