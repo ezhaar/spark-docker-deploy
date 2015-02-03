@@ -30,7 +30,11 @@ def parse_arguments():
                                                                         "--slaves 2 --cluster_name "
                                                                         "clusterName")
     parser.add_argument('action', help="launch|destroy|add-nodes")
-    parser.add_argument("-c", "--cluster_name", metavar="",
+    parser.add_argument("-m", "--master_img", metavar="",
+                        dest="master_img",
+                        action="store",
+                        help="Name for the ipython image.")
+   parser.add_argument("-c", "--cluster_name", metavar="",
                         dest="cluster_name",
                         action="store",
                         help="Name for the cluster.")
@@ -60,6 +64,7 @@ def run_container(container_name, image_name):
 
 
 def run_container_master(container_name, dns_info, image_name):
+    image_name = "ezhaar/spark-ipynb"
     args = ["docker", "run", "-d", "--volumes-from", "keyhost", "--name",
             container_name, "--dns-search=localdomain", "-h",
             'master.localdomain', dns_info, "--dns=8.8.8.8", image_name]
@@ -94,6 +99,7 @@ def main():
     args = parse_arguments()
     cluster_name = args.cluster_name
     num_slaves = args.num_slaves
+    master_img = args.master_img
     dns_img = "ezhaar/docker-dnsmasq"
     keyhost_img = "ezhaar/docker-ssh-keys"
     spark_img = "ezhaar/docker-spark"
@@ -110,7 +116,7 @@ def main():
 
     # boot master
     master_id = run_container_master(master_name, dns_info,
-                                     spark_img).rstrip()
+                                     master_img).rstrip()
     master_ip = get_container_ip(master_name).rstrip()
     master_rootfs = "/var/lib/docker/devicemapper/mnt/" + master_id
 
