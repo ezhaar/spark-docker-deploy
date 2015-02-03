@@ -34,7 +34,7 @@ def parse_arguments():
                         dest="master_img",
                         action="store",
                         help="Name for the ipython image.")
-   parser.add_argument("-c", "--cluster_name", metavar="",
+    parser.add_argument("-c", "--cluster_name", metavar="",
                         dest="cluster_name",
                         action="store",
                         help="Name for the cluster.")
